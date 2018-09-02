@@ -28,7 +28,19 @@ THE SOFTWARE.
 
 namespace Heady
 {
+	/// Major version number
+	static const uint32_t MajorVersion = 0;
 
+	/// Minor version number
+	static const uint32_t MinorVersion = 1;
+
+	/// Patch number
+	static const uint32_t PatchNumber = 1;
+
+	/// Get the version number in string form
+	std::string GetVersionString();
+
+	/// Generate combined header from source
     void GenerateHeader(std::string_view sourceFolder, std::string_view output, std::string_view excluded, bool recursive);
 
 };

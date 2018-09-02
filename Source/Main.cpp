@@ -1,25 +1,8 @@
 /*
-The MIT License (MIT)
-
+The Heady library is distributed under the MIT License (MIT)
+https://opensource.org/licenses/MIT
+See LICENSE.TXT or Heady.h for license details.
 Copyright (c) 2018 James Boer
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 */
 
 #include <iostream>
@@ -28,7 +11,6 @@ THE SOFTWARE.
 #include "clara.hpp"
 #include "Heady.h"
 
-using namespace Heady;
 using namespace clara;
 
 int main(int argc, char ** argv)
@@ -44,7 +26,8 @@ int main(int argc, char ** argv)
         Opt(excluded, "excluded")["-e"]["--excluded"]("exclude specific files") |
 		Opt(output, "output")["-o"]["--output"]("output filename for generated header file") |
 		Opt(recursive, "recursive")["-r"]["--recursive"]["recursively scan source folder"] |
-        Help(showHelp);
+		Help(showHelp)
+        ;
 
 	auto result = parser.parse(Args(argc, argv));
 	if (!result)
@@ -54,17 +37,23 @@ int main(int argc, char ** argv)
 	}
 	else if (showHelp)
 	{
+		std::cout << "Heady version " << Heady::GetVersionString() << " Copyright (c) James Boer\n\n";
 		parser.writeToStream(std::cout);
 		std::cout << 
 			"\nExample usage:" << 
 			"\nHeady --source \"\\Source\" --exluded \"Main.cpp clara.hpp\" --output \"\\Include\\Heady.hpp\"";
 		return 0;
 	}
+	else if (source.empty() || output.empty())
+	{
+		std::cerr << "Error: Valid source (-s or --source) and output (-o or --output) are required.\n";
+		return 1;
+	}
 
     // Generate a combined header file from all C++ source files
 	try
 	{
-		GenerateHeader(source, output, excluded, recursive);
+		Heady::GenerateHeader(source, output, excluded, recursive);
 	}
 	catch (const std::exception & e)
 	{

@@ -7,9 +7,9 @@ Copyright (c) 2018 James Boer
 
 #include "Heady.h"
 
+#include <array>
 #include <vector>
 #include <list>
-#include <set>
 #include <map>
 #include <filesystem>
 #include <string>
@@ -37,16 +37,16 @@ namespace Heady
             return { first, last };
         }
 
-        std::set<std::string> FindAndRemoveLocalIncludes(std::string & source)
+        std::list<std::string> FindAndRemoveLocalIncludes(std::string & source)
         {
-            std::set<std::string> includes;
+            std::list<std::string> includes;
             std::regex r(R"regex(\s*#\s*include\s*(["])([^"]+)(["]))regex");
             std::smatch m;
             std::string s = source;
             source = "";
             while (std::regex_search(s, m, r))
             {
-                includes.emplace(m[2].str());
+                includes.push_back(m[2].str());
                 if (m.prefix().length())
                     source += m.prefix().str();
                 s = m.suffix().str();
@@ -60,6 +60,26 @@ namespace Heady
             return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
         }
 
+		void AddDependencies(const FileEntryDependencies & fileEntries, const std::list<std::filesystem::directory_entry> & dependencies, std::list<std::filesystem::directory_entry> & sortedFileEntries)
+		{
+			// Look at all dependencies
+			for (const auto & dep : dependencies)
+			{
+				// Check to see if we're already in the sorted list.  If not, check for sub-dependencies, then add it
+				if (std::find(sortedFileEntries.begin(), sortedFileEntries.end(), dep) == sortedFileEntries.end())
+				{
+					// Check to see if these dependencies have dependencies of their own.
+					auto itr = std::find_if(fileEntries.begin(), fileEntries.end(), [&dep](const auto & pair) { return pair.first == dep; });
+					if (itr != fileEntries.end())
+						AddDependencies(fileEntries, itr->second, sortedFileEntries);
+
+					// Check one more time to make sure we don't have circular dependencies
+					if (std::find(sortedFileEntries.begin(), sortedFileEntries.end(), dep) == sortedFileEntries.end())
+						sortedFileEntries.push_back(dep);
+				}
+			}
+		}
+
         std::list<std::filesystem::directory_entry> SortFileEntries(const FileEntryDependencies & fileEntries)
         {
 			// This function creates a file entry list sorted by dependency requirements
@@ -67,42 +87,32 @@ namespace Heady
 			// Sorted file entries
             std::list<std::filesystem::directory_entry> sortedFileEntries;
 
-			// Continue until we've added all file entries to the sorted list
-			while (sortedFileEntries.size() < fileEntries.size())
+			// Iterate through all files in the original list
+			for (const auto & entryPair : fileEntries)
 			{
-				// Iterate through all files in the original list
-				for (const auto & entryPair : fileEntries)
-				{
-					// Check all dependencies, and if we're missing any dependencies already in the list
-					bool missingDependency = false;
-					for (const auto & dep : entryPair.second)
-					{
-						// If the depenency isn't in the current list, we mark it as a missing dependency
-						if (std::find(sortedFileEntries.begin(), sortedFileEntries.end(), dep) == sortedFileEntries.end())
-						{
-							missingDependency = true;
-							break;
-						}
-					}
+				// Recursively add dependencies from each file entry
+				AddDependencies(fileEntries, entryPair.second, sortedFileEntries);
 
-					// If we don't have a missing dependency AND we aren't already in the list, then add this file
-					if (!missingDependency && std::find(sortedFileEntries.begin(), sortedFileEntries.end(), entryPair.first) == sortedFileEntries.end())
-					{
-						sortedFileEntries.push_back(entryPair.first);
-					}
-				}
+				// If we aren't already in the list, then add the file
+				if (std::find(sortedFileEntries.begin(), sortedFileEntries.end(), entryPair.first) == sortedFileEntries.end())
+					sortedFileEntries.push_back(entryPair.first);
 			}
 
             return sortedFileEntries;
         }
     }
 
+	std::string GetVersionString()
+	{
+		std::array<char, 32> buffer;
+		snprintf(buffer.data(), buffer.size(), "%i.%i.%i", MajorVersion, MinorVersion, PatchNumber);
+		return buffer.data();
+	}
+
 	void GenerateHeader(std::string_view sourceFolder, std::string_view output, std::string_view excluded, bool recursive)
     {
-		using namespace Internal;
-
         // Add initial file entries from designated source folder
-		FileEntryDependencies fileEntries;
+		Internal::FileEntryDependencies fileEntries;
 		if (recursive)
 		{
 			for (const auto & f : std::filesystem::recursive_directory_iterator(sourceFolder))
@@ -115,25 +125,18 @@ namespace Heady
 		}
         
         // Create list of excluded filenames
-        auto excludedFilenames = Tokenize(std::string(excluded));        
+        auto excludedFilenames = Internal::Tokenize(std::string(excluded));
 
         // Remove excluded files from fileEntries
-        if (!excludedFilenames.empty())
+        fileEntries.remove_if([&excludedFilenames](const auto & pair)
         {
-            fileEntries.remove_if([&excludedFilenames](const auto & pair)
+            for (auto fn : excludedFilenames)
             {
-                if (!excludedFilenames.empty())
-                {
-                    for (auto fn : excludedFilenames)
-                    {
-                        if ((pair.first.path().filename()) == fn)
-                            return true;
-                    }
-                    return false;
-                }
-                return false;
-            });
-        }
+                if ((pair.first.path().filename()) == fn)
+                    return true;
+            }
+            return false;
+        });
 
         // No need to do anything if we don't have any files to process
 		if (fileEntries.empty())
@@ -153,7 +156,7 @@ namespace Heady
 			std::string fileData = buffer.str();
 
             // Strip local include lines out, and return them in a set
-            auto includes = FindAndRemoveLocalIncludes(fileData);
+            auto includes = Internal::FindAndRemoveLocalIncludes(fileData);
 
 			// Store processed data in a map
 			fileDataMap[fp.first] = fileData;
@@ -163,7 +166,7 @@ namespace Heady
             {
                 for (const auto & fp2 : fileEntries)
                 {
-                    if (EndsWith(fp2.first.path().string(), inc))
+                    if (Internal::EndsWith(fp2.first.path().string(), inc))
                     {
                         fp.second.push_back(fp2.first);
                         break;
@@ -172,8 +175,16 @@ namespace Heady
             }
         }
 
+		// Make sure .cpp files are processed first
+		fileEntries.sort([](const auto & left, const auto & right)
+		{
+			// We're taking advantage of the fact that cpp < h or hpp or inc.  If we need to add other
+			// extensions, we'll have to revisit this.
+			return left.first.path().extension() < right.first.path().extension();
+		});
+
 		// Sort all file entries by dependency
-        auto sortedFileEntries = SortFileEntries(fileEntries);
+        auto sortedFileEntries = Internal::SortFileEntries(fileEntries);
 
 		// Remove existing file
 		if (std::filesystem::exists(output))
