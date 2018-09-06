@@ -18,16 +18,16 @@ int main(int argc, char ** argv)
 	// Handle command-line options
 	std::string source;
 	std::string output;
-    std::string excluded;
+	std::string excluded;
 	bool recursive = false;
 	bool showHelp = false;
 	auto parser = 
 		Opt(source, "source")["-s"]["--source"]("folder containing source files") |
-        Opt(excluded, "excluded")["-e"]["--excluded"]("exclude specific files") |
+		Opt(excluded, "excluded")["-e"]["--excluded"]("exclude specific files") |
 		Opt(output, "output")["-o"]["--output"]("output filename for generated header file") |
 		Opt(recursive, "recursive")["-r"]["--recursive"]["recursively scan source folder"] |
 		Help(showHelp)
-        ;
+		;
 
 	auto result = parser.parse(Args(argc, argv));
 	if (!result)
@@ -50,7 +50,7 @@ int main(int argc, char ** argv)
 		return 1;
 	}
 
-    // Generate a combined header file from all C++ source files
+	// Generate a combined header file from all C++ source files
 	try
 	{
 		Heady::GenerateHeader(source, output, excluded, recursive);
@@ -61,6 +61,6 @@ int main(int argc, char ** argv)
 		return 1;
 	}
 
-    return 0;
+	return 0;
 }
 

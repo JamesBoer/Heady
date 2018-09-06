@@ -41,6 +41,6 @@ namespace Heady
 	std::string GetVersionString();
 
 	/// Generate combined header from source
-    void GenerateHeader(std::string_view sourceFolder, std::string_view output, std::string_view excluded, bool recursive);
+	void GenerateHeader(std::string_view sourceFolder, std::string_view output, std::string_view excluded, bool recursive);
 
 };
