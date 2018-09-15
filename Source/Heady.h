@@ -26,21 +26,32 @@ THE SOFTWARE.
 
 #include <string_view>
 
+#define inline_t
+
 namespace Heady
 {
 	/// Major version number
-	static const uint32_t MajorVersion = 0;
+	const uint32_t MajorVersion = 0;
 
 	/// Minor version number
-	static const uint32_t MinorVersion = 1;
+	const uint32_t MinorVersion = 2;
 
 	/// Patch number
-	static const uint32_t PatchNumber = 0;
+	const uint32_t PatchNumber = 0;
 
 	/// Get the version number in string form
 	std::string GetVersionString();
 
+	struct Params
+	{
+		std::string sourceFolder;
+		std::string output;
+		std::string excluded;
+		std::string inlined;
+		bool recursiveScan;
+	};
+
 	/// Generate combined header from source
-	void GenerateHeader(std::string_view sourceFolder, std::string_view output, std::string_view excluded, bool recursive);
+	void GenerateHeader(const Params& params);
 
 };

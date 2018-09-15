@@ -39,22 +39,33 @@ THE SOFTWARE.
 
 #include <string_view>
 
+#define inline_t
+
 namespace Heady
 {
 	/// Major version number
-	static const uint32_t MajorVersion = 0;
+	const uint32_t MajorVersion = 0;
 
 	/// Minor version number
-	static const uint32_t MinorVersion = 1;
+	const uint32_t MinorVersion = 2;
 
 	/// Patch number
-	static const uint32_t PatchNumber = 0;
+	const uint32_t PatchNumber = 0;
 
 	/// Get the version number in string form
 	std::string GetVersionString();
 
+	struct Params
+	{
+		std::string sourceFolder;
+		std::string output;
+		std::string excluded;
+		std::string inlined;
+		bool recursiveScan;
+	};
+
 	/// Generate combined header from source
-	void GenerateHeader(std::string_view sourceFolder, std::string_view output, std::string_view excluded, bool recursive);
+	void GenerateHeader(const Params& params);
 
 };
 
@@ -78,12 +89,12 @@ namespace Heady
 
 namespace Heady
 {
-	namespace Internal
+	namespace Detail
 	{
 		// Forward declaration
 		void FindAndProcessLocalIncludes(const std::list<std::filesystem::directory_entry> & dirEntries, const std::filesystem::directory_entry & dirEntry, std::set<std::string> & processed, std::string & outputText);
 
-		std::vector<std::string> Tokenize(const std::string & source)
+		inline std::vector<std::string> Tokenize(const std::string & source)
 		{
 			if (source.empty())
 				return {};
@@ -94,12 +105,22 @@ namespace Heady
 			return { first, last };
 		}
 
-		bool EndsWith(std::string_view str, std::string_view suffix)
+		inline bool EndsWith(std::string_view str, std::string_view suffix)
 		{
 			return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 		}
+
+		inline void FindAndReplaceAll(std::string& str, std::string_view search, std::string_view replace)
+		{
+			size_t pos = str.find(search);
+			while (pos != std::string::npos)
+			{
+				str.replace(pos, search.size(), replace);
+				pos = str.find(search, pos + search.size());
+			}
+		}
 	  
-		void FindAndProcessLocalIncludes(const std::list<std::filesystem::directory_entry> & dirEntries, const std::string & include, std::set<std::string> & processed, std::string & outputText)
+		inline void FindAndProcessLocalIncludes(const std::list<std::filesystem::directory_entry> & dirEntries, const std::string & include, std::set<std::string> & processed, std::string & outputText)
 		{
 			// Check to see if we've already processed this file
 			if (processed.find(include) != processed.end())
@@ -116,7 +137,7 @@ namespace Heady
 			}
 		}
 
-		void FindAndProcessLocalIncludes(const std::list<std::filesystem::directory_entry> & dirEntries, const std::filesystem::directory_entry & dirEntry, std::set<std::string> & processed, std::string & outputText)
+		inline void FindAndProcessLocalIncludes(const std::list<std::filesystem::directory_entry> & dirEntries, const std::filesystem::directory_entry & dirEntry, std::set<std::string> & processed, std::string & outputText)
 		{
 			// Check to see if we've already processed this file
 			auto fn = dirEntry.path().filename().string();
@@ -166,30 +187,33 @@ namespace Heady
 		}
 	}
 
-	std::string GetVersionString()
+	inline std::string GetVersionString()
 	{
 		std::array<char, 32> buffer;
 		snprintf(buffer.data(), buffer.size(), "%i.%i.%i", MajorVersion, MinorVersion, PatchNumber);
 		return buffer.data();
 	}
 
-	void GenerateHeader(std::string_view sourceFolder, std::string_view output, std::string_view excluded, bool recursive)
+	inline void GenerateHeader(const Params& params)
 	{
+		if (params.output.empty())
+			throw std::invalid_argument("Requires a valid output argument");
+
 		// Add initial file entries from designated source folder
 		std::list<std::filesystem::directory_entry> dirEntries;
-		if (recursive)
+		if (params.recursiveScan)
 		{
-			for (const auto & f : std::filesystem::recursive_directory_iterator(sourceFolder))
+			for (const auto & f : std::filesystem::recursive_directory_iterator(params.sourceFolder))
 				dirEntries.emplace_back(f);
 		}
 		else
 		{
-			for (const auto & f : std::filesystem::directory_iterator(sourceFolder))
+			for (const auto & f : std::filesystem::directory_iterator(params.sourceFolder))
 				dirEntries.emplace_back(f);
 		}
 		
 		// Create list of excluded filenames
-		auto excludedFilenames = Internal::Tokenize(std::string(excluded));
+		auto excludedFilenames = Detail::Tokenize(params.excluded);
 
 		// Remove excluded files from fileEntries
 		dirEntries.remove_if([&excludedFilenames](const auto & entry)
@@ -218,10 +242,18 @@ namespace Heady
 		std::string outputText;
 		std::set<std::string> processed;
 		for (const auto & entry : dirEntries)
-			Internal::FindAndProcessLocalIncludes(dirEntries, entry, processed, outputText);
+			Detail::FindAndProcessLocalIncludes(dirEntries, entry, processed, outputText);
+
+		// Replace all instances of a specified macro with 'inline'
+		std::string inlineValue = params.inlined;
+		if (inlineValue.empty())
+			inlineValue = "inline ";
+		if (inlineValue[inlineValue.size() - 1] != ' ')
+			inlineValue += " ";
+		Detail::FindAndReplaceAll(outputText, inlineValue, "inline ");
 
 		// Check to see if output folder exists.  If not, create it
-		auto outFolder =  std::filesystem::path(output);
+		auto outFolder =  std::filesystem::path(params.output);
 		outFolder.remove_filename();
 		if (!std::filesystem::exists(outFolder))
 		{
@@ -230,15 +262,16 @@ namespace Heady
 		else
 		{
 			// Remove existing file
-			if (std::filesystem::exists(output))
-				std::filesystem::remove(output);
+			if (std::filesystem::exists(params.output))
+				std::filesystem::remove(params.output);
 		}
 
 		// Write all processed file data to new header file
 		std::ofstream outFile;
-		outFile.open(output, std::ios::out);
+		outFile.open(params.output, std::ios::out);
 		outFile << outputText;
 	}
+	
 }
 
 // end --- Heady.cpp --- 

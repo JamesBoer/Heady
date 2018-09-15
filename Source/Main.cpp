@@ -17,16 +17,18 @@ int main(int argc, char ** argv)
 {
 	// Handle command-line options
 	std::string source;
-	std::string output;
 	std::string excluded;
+	std::string inlined = "inline_t";
+	std::string output;
 	bool recursive = false;
 	bool showHelp = false;
 	auto parser = 
+		Help(showHelp) |
 		Opt(source, "source")["-s"]["--source"]("folder containing source files") |
 		Opt(excluded, "excluded")["-e"]["--excluded"]("exclude specific files") |
+		Opt(inlined, "inline")["-i"]["--inline"]("inline macro substitution") |
 		Opt(output, "output")["-o"]["--output"]("output filename for generated header file") |
-		Opt(recursive, "recursive")["-r"]["--recursive"]["recursively scan source folder"] |
-		Help(showHelp)
+		Opt(recursive, "recursive")["-r"]["--recursive"]["recursively scan source folder"]
 		;
 
 	auto result = parser.parse(Args(argc, argv));
@@ -41,7 +43,7 @@ int main(int argc, char ** argv)
 		parser.writeToStream(std::cout);
 		std::cout << 
 			"\nExample usage:" << 
-			"\nHeady --source \"\\Source\" --exluded \"Main.cpp clara.hpp\" --output \"\\Include\\Heady.hpp\"";
+			"\nHeady --source \"Source\" --exluded \"Main.cpp clara.hpp\" --inline \"inline_t\" --output \"Include/Heady.hpp\"";
 		return 0;
 	}
 	else if (source.empty() || output.empty())
@@ -53,7 +55,13 @@ int main(int argc, char ** argv)
 	// Generate a combined header file from all C++ source files
 	try
 	{
-		Heady::GenerateHeader(source, output, excluded, recursive);
+		Heady::Params params;
+		params.sourceFolder = source;
+		params.output = output;
+		params.excluded = excluded;
+		params.inlined = inlined;
+		params.recursiveScan = recursive;
+		Heady::GenerateHeader(params);
 	}
 	catch (const std::exception & e)
 	{
