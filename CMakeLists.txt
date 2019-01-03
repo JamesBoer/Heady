@@ -29,7 +29,7 @@ set(
 	"Source/Main.cpp"
 )
 add_executable(${PROJECT_NAME} ${heady_source_list})
-target_link_libraries(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PRIVATE "stdc++fs")
 
 # Set compiler options
 set_compiler_options(${PROJECT_NAME})
@@ -49,7 +49,7 @@ set(
 	"Tests/Basic/Main.cpp"
 )
 add_executable(Basic ${basic_test_source_list})
-target_link_libraries(Basic)
+target_link_libraries(Basic PRIVATE "stdc++fs")
 
 # Set compiler options
 set_compiler_options(Basic)
@@ -63,6 +63,6 @@ set_property(TARGET Basic PROPERTY FOLDER "Tests")
 # Set the MSVC startup project
 if(MSVC)
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-endif()	
-	
+endif()
+
 

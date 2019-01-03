@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <string_view>
+#include <string>
 
 #define inline_t
 
@@ -54,4 +54,4 @@ namespace Heady
 	/// Generate combined header from source
 	void GenerateHeader(const Params& params);
 
-};
+}
