@@ -11,7 +11,7 @@ Copyright (c) 2018 James Boer
 #include "Basic.h"
 
 
-int main(int argc, char ** argv)
+int main([[maybe_unused]]int argc, [[maybe_unused]]char ** argv)
 {
 
 	try
