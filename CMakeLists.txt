@@ -29,7 +29,11 @@ set(
 	"Source/Main.cpp"
 )
 add_executable(${PROJECT_NAME} ${heady_source_list})
-target_link_libraries(${PROJECT_NAME} PRIVATE "stdc++fs")
+if(UNIX AND NOT APPLE)
+	target_link_libraries(${PROJECT_NAME} PRIVATE "stdc++fs")
+else()
+	target_link_libraries(${PROJECT_NAME})
+endif()
 
 # Set compiler options
 set_compiler_options(${PROJECT_NAME})
@@ -49,7 +53,11 @@ set(
 	"Tests/Basic/Main.cpp"
 )
 add_executable(Basic ${basic_test_source_list})
-target_link_libraries(Basic PRIVATE "stdc++fs")
+if(UNIX AND NOT APPLE)
+	target_link_libraries(Basic PRIVATE "stdc++fs")
+else()
+	target_link_libraries(Basic)
+endif()
 
 # Set compiler options
 set_compiler_options(Basic)
