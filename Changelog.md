@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2019-01-04
+
+- Heady now uses CMake to build projects
+- Minor fixups to compile cleanly with gcc/Linux
+- Added basic tutorial in readme file
+
 ## [0.2.0] - 2018-09-15
 
 - Added inline macro substitution to solve multiple definition errors
