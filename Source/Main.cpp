@@ -23,12 +23,12 @@ int main(int argc, char ** argv)
 	bool recursive = false;
 	bool showHelp = false;
 	auto parser = 
-		Help(showHelp) |
-		Opt(source, "source")["-s"]["--source"]("folder containing source files") |
-		Opt(excluded, "excluded")["-e"]["--excluded"]("exclude specific files") |
-		Opt(inlined, "inline")["-i"]["--inline"]("inline macro substitution") |
-		Opt(output, "output")["-o"]["--output"]("output filename for generated header file") |
-		Opt(recursive, "recursive")["-r"]["--recursive"]["recursively scan source folder"]
+		Opt(source, "folder")["-s"]["--source"]("folder containing source files") |
+		Opt(excluded, "files")["-e"]["--excluded"]("exclude specific files") |
+		Opt(inlined, "name")["-i"]["--inline"]("inline macro substitution") |
+		Opt(output, "file")["-o"]["--output"]("generated header file") |
+		Opt(recursive)["-r"]["--recursive"]("recursively scan source folder") |
+		Help(showHelp)
 		;
 
 	auto result = parser.parse(Args(argc, argv));
@@ -43,12 +43,16 @@ int main(int argc, char ** argv)
 		parser.writeToStream(std::cout);
 		std::cout << 
 			"\nExample usage:" << 
-			"\nHeady --source \"Source\" --exluded \"Main.cpp clara.hpp\" --inline \"inline_t\" --output \"Include/Heady.hpp\"";
+			"\nHeady --source \"Source\" --exluded \"Main.cpp clara.hpp\" --inline \"inline_t\" --output \"Include/Heady.hpp\"\n";
 		return 0;
 	}
 	else if (source.empty() || output.empty())
 	{
-		std::cerr << "Error: Valid source (-s or --source) and output (-o or --output) are required.\n";
+		std::cerr << "Error: Valid source and output are required.\n\n";
+		parser.writeToStream(std::cerr);
+		std::cerr <<
+			"\nExample usage:" <<
+			"\nHeady --source \"Source\" --exluded \"Main.cpp clara.hpp\" --inline \"inline_t\" --output \"Include/Heady.hpp\"\n";
 		return 1;
 	}
 

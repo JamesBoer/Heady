@@ -1,6 +1,6 @@
 
 
-// begin --- Heady.cpp ---
+// begin --- Heady.cpp --- 
 
 /*
 The Heady library is distributed under the MIT License (MIT)
@@ -9,7 +9,7 @@ See LICENSE.TXT or Heady.h for license details.
 Copyright (c) 2018 James Boer
 */
 
-// begin --- Heady.h ---
+// begin --- Heady.h --- 
 
 /*
 The MIT License (MIT)
@@ -69,7 +69,8 @@ namespace Heady
 
 }
 
-// end --- Heady.h ---
+
+// end --- Heady.h --- 
 
 
 
@@ -119,7 +120,7 @@ namespace Heady
 				pos = str.find(search, pos + search.size());
 			}
 		}
-
+	  
 		inline void FindAndProcessLocalIncludes(const std::list<std::filesystem::directory_entry> & dirEntries, const std::string & include, std::set<std::string> & processed, std::string & outputText)
 		{
 			// Check to see if we've already processed this file
@@ -211,7 +212,7 @@ namespace Heady
 			for (const auto & f : std::filesystem::directory_iterator(params.sourceFolder))
 				dirEntries.emplace_back(f);
 		}
-
+		
 		// Create list of excluded filenames
 		auto excludedFilenames = Detail::Tokenize(params.excluded);
 
@@ -271,8 +272,8 @@ namespace Heady
 		outFile.open(params.output, std::ios::out);
 		outFile << outputText;
 	}
-
+	
 }
 
-// end --- Heady.cpp ---
+// end --- Heady.cpp --- 
 
