@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2019-02-18
+
+- Fix error in documentation
+
 ## [0.2.1] - 2019-01-04
 
 - Heady now uses CMake to build projects

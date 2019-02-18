@@ -94,7 +94,7 @@ C++ 17 allows compound namespaces, which makes things a bit easier in the conver
 ### Convert standalone static data to static class members
 Static data defined inside source files must be converted to static members of a class or struct.  This allows it to perform the same function of storing shared internal data, but will work as expected from a single header.  Fortunately, C++ 17 allows us to do this in a clean, simple fashion, without requiring some of the more convoluted hacks required in previous versions of C++.
 
-Example:
+Before:
 
     // MyLib.cpp
     namespace MyLib
@@ -120,14 +120,14 @@ After:
         
         inline_t int GetData()
         {
-            return Data::s_data;
+            return Data::data;
         }
     }
 
 ### Functions defined in .cpp files must be marked to allow inlining.
 Functions, member functions, constructors, and destructors defined in a header (but outside of the class definition) must be marked as ```inline```, or they will violate the [one-definition rule](https://en.wikipedia.org/wiki/One_Definition_Rule).
 
-Heady is not smart enough to parse and identify all functions defined in source files.  Instead, it requires a simple, unique identifier that it can transform into the ```inline``` keyword when the files are moved into the amalgamated header file.
+Heady doesn't parse and identify all functions defined in source files.  Instead, it relies on a simple, unique identifier that it can transform into the ```inline``` keyword when the files are moved into the amalgamated header file.
 
 By default, Heady looks for ```inline_t```, and replaces it with ```inline``` during transformation.
 
