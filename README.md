@@ -115,7 +115,7 @@ After:
     {
         struct Data
         {
-            static inline data = 3;
+            static inline int data = 3;
         }
         
         inline_t int GetData()
