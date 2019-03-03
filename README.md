@@ -9,19 +9,21 @@ Heady is written in standard C++ 17, and should be compliant with any compiler a
 ## Using Heady
 Heady is a small utility designed to be integrated as part of a build or post-build process.
 
-    usage:
-    Heady options
+```
+usage:
+Heady options
 
-    where options are:
-        -s, --source <folder>       folder containing source files
-        -e, --excluded <files>      exclude specific files
-        -i, --inline <inline>       inline macro substitution
-        -o, --output <file>         generated header file
-        -r, --recursive             recursively scan source folder
-        -?, -h, --help              display usage information
+where options are:
+    -s, --source <folder>       folder containing source files
+    -e, --excluded <files>      exclude specific files
+    -i, --inline <inline>       inline macro substitution
+    -o, --output <file>         generated header file
+    -r, --recursive             recursively scan source folder
+    -?, -h, --help              display usage information
 
-    Example usage:
-    Heady --source "Source" --excluded "Main.cpp clara.hpp" --output "Include\Heady.hpp"
+Example usage:
+Heady --source "Source" --excluded "Main.cpp clara.hpp" --output "Include\Heady.hpp"
+```
 
 ## Building Heady
 Heady uses CMake for building projects on each supported platform.  Make sure CMake (minimum v10) is installed, then run the corresponding batch or script file in ```/Bin```.
@@ -35,59 +37,68 @@ No utility (and certainly not Heady) is smart enough to convert any arbitrary li
 ### No "using namespace" in source files
 This rule should be reasonably obvious, since you never want ```using namespace``` to pollute a header file.  Instead of ```using namespace``` in your source files, convert them instead to:
 
-    // MyLib.cpp
-    namespace MyLib
+``` c++
+// MyLib.cpp
+namespace MyLib
+{
+    Foo::Foo()
     {
-        Foo::Foo()
-        {
-        }
     }
-    
+}
+```
+
 You could also choose to explicitly prefix your code with the appropriate namespace.
 
-    MyLib::Foo::Foo()
-    {
-    }
+``` c++
+MyLib::Foo::Foo()
+{
+}
+```
 
 ### Internal APIs should be placed into a nested namespace
 Since all APIs will be placed into a public-facing header, it's important that those APIs not meant for public use be clearly marked as "internal" in some fashion, to signal intent and prevent inadvertent usage.  The namespace "detail" is often used.  I occasionally use "impl" as well.
 
 Before:
 
-    namespace MyLib
+``` c++
+namespace MyLib
+{
+    class Foo
+    {
+    public:
+        Foo() {}
+    };
+} 
+```
+
+After (method 1):
+
+``` c++
+namespace MyLib
+{
+    namespace Impl
     {
         class Foo
         {
-            public:
+        public:
             Foo() {}
         };
-    } 
-    
-After (method 1):
-
-    namespace MyLib
-    {
-        namespace Impl
-        {
-            class Foo
-            {
-                public:
-                Foo() {}
-            };
-        }
-    } 
+    }
+} 
+```
 
 After (method 2):
 
-    namespace MyLib::Impl
+``` c++
+namespace MyLib::Impl
+{
+    class Foo
     {
-        class Foo
-        {
-            public:
-            Foo() {}
-        };
-    } 
-
+    public:
+        Foo() {}
+    };
+} 
+```
 
 C++ 17 allows compound namespaces, which makes things a bit easier in the conversion, and doesn't waste as much whitespace.
 
@@ -96,33 +107,36 @@ Static data defined inside source files must be converted to static members of a
 
 Before:
 
-    // MyLib.cpp
-    namespace MyLib
+``` c++
+// MyLib.cpp
+namespace MyLib
+{
+    static int s_data = 3;    
+    
+    int GetData()
     {
-        static int s_data = 3;    
-    
-        int GetData()
-        {
-            return s_data;
-        }
+        return s_data;
     }
-    
+}
+```
+
 After:
 
-    // MyLib.cpp
-    
-    namespace MyLib::Impl
+``` c++
+// MyLib.cpp  
+namespace MyLib::Impl
+{
+    struct Data
     {
-        struct Data
-        {
-            static inline int data = 3;
-        }
-        
-        inline_t int GetData()
-        {
-            return Data::data;
-        }
+        static inline int data = 3;
     }
+        
+    inline_t int GetData()
+    {
+        return Data::data;
+    }
+}
+```
 
 ### Functions defined in .cpp files must be marked to allow inlining.
 Functions, member functions, constructors, and destructors defined in a header (but outside of the class definition) must be marked as ```inline```, or they will violate the [one-definition rule](https://en.wikipedia.org/wiki/One_Definition_Rule).
@@ -133,16 +147,18 @@ By default, Heady looks for ```inline_t```, and replaces it with ```inline``` du
 
 Example:
 
-    // MyLib.h
-    #define inline_t
+``` c++
+// MyLib.h
+#define inline_t
 
-    // MyLib.cpp
-    namespace MyLib::Impl
+// MyLib.cpp
+namespace MyLib::Impl
+{
+    inline_t Foo::Foo()
     {
-        inline_t Foo::Foo()
-        {
-        }
     }
+}
+```    
     
 All functions, member functions, constructors and destructors must be marked with the ```inline_t``` macro.  You may also define your own macro, and pass that in as a command-line argument.
    
