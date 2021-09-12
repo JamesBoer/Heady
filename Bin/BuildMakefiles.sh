@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Generate CodeBlocks project and makefiles
-./GenerateCodeBlocks.sh || exit 1
+# Generate makefiles
+./GenerateMakefiles.sh || exit 1
 
 # Navigate to build folder
 cd ..
