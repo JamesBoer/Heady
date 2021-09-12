@@ -1,10 +1,10 @@
-# Heady
+# Heady ![CI](https://github.com/JamesBoer/Heady/workflows/CI/badge.svg)
 Heady is a small utility and library designed to scan a set of C++ files and generate a single header file from all source files.  This is useful for library developers who wish to offer a single combined library header, but wish to develop the library using a more traditional structure with multiple header and source files.
 
 Heady automatically detects any #include directives in the form ```#include "filename.h"```, in which quotes are used instead of angle brackets <>.  No alteration to the source content is made aside from stripping out the ```#include "filename.h"``` directives and replacing it with the contents of the header file.  As such, source files must be written in such a matter as to be "header-friendly".
 
 ## Requirements
-Heady is written in standard C++ 17, and should be compliant with any compiler and standard library which fully implements this standard.  Due to a current lack of support for <filesystem> on macOS (as of 2019-01-04), you may not be able to compile on that platform.  Ubuntu 18.04 also does not provide gcc 8.x by default, which is required to compile the new filesystem API, but this can be obtained without too much effort.
+Heady is written in standard C++ 17, and should be compliant with any compiler and standard library which fully implements this standard.
 
 ## Using Heady
 Heady is a small utility designed to be integrated as part of a build or post-build process.

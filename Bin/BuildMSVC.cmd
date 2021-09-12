@@ -1,6 +1,33 @@
+@echo off
+call GenerateMSVC.cmd
 cd ..
-mkdir Build
-cd Build/
-cmake ../ -G "Visual Studio 16 2019" -A x64
+
+IF NOT EXIST Build (
+echo Build folder does not exist.
+goto ERROR
+)
+
+cd Build
+
+MSBuild Heady.sln /p:Configuration=Debug && (
+  echo Debug build succeeded
+) || (
+  echo Debug build failed
+  goto ERROR
+)
+
+MSBuild Heady.sln /p:Configuration=Release && (
+  echo Release build succeeded
+) || (
+  echo Release build failed
+  goto ERROR
+)
+
 cd ..
-pause
+cd Bin
+EXIT /B 0
+
+:ERROR
+cd ..
+cd Bin
+EXIT /B 1
