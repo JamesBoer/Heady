@@ -34,10 +34,6 @@ jobs:
     - name: Build using MSVC
       run: ./BuildMSVC.cmd
 
-    # Run basic test
-    - name: Run basic test
-      run: ./../Build/Release/Basic.exe
-
   build_macos:
     # The type of runner that the job will run on
     runs-on: macos-latest
@@ -54,10 +50,6 @@ jobs:
     # Generate and build makefiles using shell script
     - name: Build using make
       run: ./BuildMakefiles.sh
-
-    # Run basic test
-    - name: Run basic test
-      run: ./../Build/Release/Basic
 
   build_linux:
     # The type of runner that the job will run on
@@ -76,6 +68,3 @@ jobs:
     - name: Build using make
       run: ./BuildMakefiles.sh
 
-    # Run basic test
-    - name: Run basic test
-      run: ./../Build/Release/Basic
