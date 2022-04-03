@@ -1,4 +1,9 @@
 
+// Amalgamation-specific define
+#ifndef HEADY_HEADER_ONLY
+#define HEADY_HEADER_ONLY
+#endif
+
 
 // begin --- Heady.cpp --- 
 
@@ -61,6 +66,7 @@ namespace Heady
 		std::string output;
 		std::string excluded;
 		std::string inlined;
+		std::string define;
 		bool recursiveScan;
 	};
 
@@ -239,8 +245,19 @@ namespace Heady
 			return left.path().extension() < right.path().extension();
 		});
 
-		// Recursively combine all source and headers into a single output string
+		// Amalgamation-specific define for header
 		std::string outputText;
+		if (!params.define.empty())
+		{
+			outputText += "\n// Amalgamation-specific define";
+			outputText += "\n#ifndef ";
+			outputText += params.define;
+			outputText += "\n#define ";
+			outputText += params.define;
+			outputText += "\n#endif\n";
+		}
+
+		// Recursively combine all source and headers into a single output string
 		std::set<std::string> processed;
 		for (const auto & entry : dirEntries)
 			Detail::FindAndProcessLocalIncludes(dirEntries, entry, processed, outputText);

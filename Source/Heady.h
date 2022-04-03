@@ -48,6 +48,7 @@ namespace Heady
 		std::string output;
 		std::string excluded;
 		std::string inlined;
+		std::string define;
 		bool recursiveScan;
 	};
 

@@ -19,6 +19,7 @@ int main(int argc, char ** argv)
 	std::string source;
 	std::string excluded;
 	std::string inlined = "inline_t";
+	std::string define;
 	std::string output;
 	bool recursive = false;
 	bool showHelp = false;
@@ -26,6 +27,7 @@ int main(int argc, char ** argv)
 		Opt(source, "folder")["-s"]["--source"]("folder containing source files") |
 		Opt(excluded, "files")["-e"]["--excluded"]("exclude specific files") |
 		Opt(inlined, "name")["-i"]["--inline"]("inline macro substitution") |
+		Opt(define, "define")["-d"]["--define"]("define for almagamated header") |
 		Opt(output, "file")["-o"]["--output"]("generated header file") |
 		Opt(recursive)["-r"]["--recursive"]("recursively scan source folder") |
 		Help(showHelp)
@@ -64,6 +66,7 @@ int main(int argc, char ** argv)
 		params.output = output;
 		params.excluded = excluded;
 		params.inlined = inlined;
+		params.define = define;
 		params.recursiveScan = recursive;
 		Heady::GenerateHeader(params);
 	}

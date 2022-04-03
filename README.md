@@ -17,13 +17,15 @@ where options are:
     -s, --source <folder>       folder containing source files
     -e, --excluded <files>      exclude specific files
     -i, --inline <inline>       inline macro substitution
+	-d, --define <define>       define for almagamated header
     -o, --output <file>         generated header file
     -r, --recursive             recursively scan source folder
     -?, -h, --help              display usage information
 
 Example usage:
-Heady --source "Source" --excluded "Main.cpp clara.hpp" --output "Include\Heady.hpp"
+Heady --define HEADY_HEADER_ONLY --source "Source" --excluded "Main.cpp clara.hpp" --output "Include\Heady.hpp"
 ```
+You may be required to change code behavior depending on whether or not an amalgamated header version of your code is being compiled.  In this case, the --define option allows you to add a custom C++ define identifier that is only included in the amalgamated header file, which allows you to perform conditional compilation if needed.
 
 ## Building Heady
 Heady uses CMake for building projects on each supported platform.  Make sure CMake (minimum v10) is installed, then run the corresponding batch or script file in ```/Bin```.
