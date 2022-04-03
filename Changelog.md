@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2022-04-02
+
+- Add define for almalgamated header
+
 ## [0.2.2] - 2019-02-18
 
 - Fix error in documentation
