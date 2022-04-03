@@ -37,7 +37,7 @@ namespace Heady
 	const uint32_t MinorVersion = 2;
 
 	/// Patch number
-	const uint32_t PatchNumber = 2;
+	const uint32_t PatchNumber = 3;
 
 	/// Get the version number in string form
 	std::string GetVersionString();
