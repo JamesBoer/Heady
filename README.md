@@ -17,7 +17,7 @@ where options are:
     -s, --source <folder>       folder containing source files
     -e, --excluded <files>      exclude specific files
     -i, --inline <inline>       inline macro substitution
-	-d, --define <define>       define for almagamated header
+    -d, --define <define>       define for almagamated header
     -o, --output <file>         generated header file
     -r, --recursive             recursively scan source folder
     -?, -h, --help              display usage information
