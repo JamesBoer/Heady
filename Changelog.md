@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 ## [0.2.4] - 2026-09-17
 
 - Update VC 2026 support
-- Add CMake option for disabling basic test project
+- Add Mac and Linux versions of scripts to self-generate amalgamated header file
+- Add CMake option for disabling self test project
 - Fix Linux build error
 
 ## [0.2.3] - 2022-04-02
