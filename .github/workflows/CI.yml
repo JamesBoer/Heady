@@ -3,12 +3,16 @@
 name: CI
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# events but only for the master branch, and also runs automatically once a month
+# to catch breakage from updated OS images, compilers, or dependencies
 on:
   push:
     branches: [ '*' ]
   pull_request: 
     branches: [ '*' ]
+  schedule:
+    # Runs at 00:00 UTC on the 1st of every month
+    - cron: '0 0 1 * *'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -24,15 +28,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     # Ensure MSVC tools are available
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v2
   
     # Generate and build MSVC project using batch file
     - name: Build using MSVC
-      run: ./BuildMSVC2022.cmd
+      run: ./BuildMSVC.cmd
 
   build_macos:
     # The type of runner that the job will run on
@@ -45,15 +49,15 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-  
+    - uses: actions/checkout@v4
+
     # Generate and build makefiles using shell script
     - name: Build using make
       run: ./BuildMakefiles.sh
 
   build_linux:
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: Bin
@@ -62,8 +66,8 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-  
+    - uses: actions/checkout@v4
+
     # Generate and build makefiles using shell script
     - name: Build using make
       run: ./BuildMakefiles.sh

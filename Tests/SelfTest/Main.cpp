@@ -2,13 +2,13 @@
 The Heady library is distributed under the MIT License (MIT)
 https://opensource.org/licenses/MIT
 See LICENSE.TXT or Heady.h for license details.
-Copyright (c) 2018 James Boer
+Copyright (c) 2026 James Boer
 */
 
 #include <iostream>
 #include <thread>
 #include <cstring>
-#include "Basic.h"
+#include "SelfTest.h"
 
 
 int main([[maybe_unused]]int argc, [[maybe_unused]]char ** argv)

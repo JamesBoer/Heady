@@ -19,7 +19,7 @@ Copyright (c) 2018 James Boer
 /*
 The MIT License (MIT)
 
-Copyright (c) 2018 James Boer
+Copyright (c) 2026 James Boer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,7 @@ THE SOFTWARE.
 #pragma once
 
 #include <string>
+#include <cstdint>
 
 #define inline_t
 
@@ -55,7 +56,7 @@ namespace Heady
 	const uint32_t MinorVersion = 2;
 
 	/// Patch number
-	const uint32_t PatchNumber = 3;
+	const uint32_t PatchNumber = 4;
 
 	/// Get the version number in string form
 	std::string GetVersionString();
